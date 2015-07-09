@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 .idea
 target
 atlassian-ide-plugin.xml
@@ -11,3 +12,6 @@ bin
 .classpath
 .project
 nb-configuration.xml
+=======
+/target/
+>>>>>>> e1170b9e9286cd8b682fe70eb603f0f7a9d8b18b
