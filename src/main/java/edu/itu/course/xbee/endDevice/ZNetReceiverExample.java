@@ -54,7 +54,7 @@ public class ZNetReceiverExample {
 	
 //    SimpleThreads simpleThreads = new SimpleThreads();
 	
-	public static void main(String[] args) throws Exception {
+	/*public static void main(String[] args) throws Exception {
 		// init log4j
 		PropertyConfigurator.configure("log4j.properties");
 		
@@ -66,23 +66,23 @@ public class ZNetReceiverExample {
         // loop until MessageLoop
         // thread exits
         while (t.isAlive()) {
-        	threadMessage("Still waiting...");
+//        	threadMessage("Still waiting...");
             // Wait maximum of 1 second
             // for MessageLoop thread
             // to finish.
-            t.join(1000);
+            t.join(10000);
             
             
-           /* if (((System.currentTimeMillis() - startTime) > patience)
+            if (((System.currentTimeMillis() - startTime) > patience)
                   && t.isAlive()) {
             	threadMessage("Tired of waiting!");
                 t.interrupt();
                 // Shouldn't be long now
                 // -- wait indefinitely
                 t.join();
-            }*/
+            }
         }
-	}
+	}*/
 	
 static void threadMessage(String message) {
 	        String threadName =

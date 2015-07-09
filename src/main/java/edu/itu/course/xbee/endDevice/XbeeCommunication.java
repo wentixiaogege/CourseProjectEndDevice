@@ -1,9 +1,11 @@
 package edu.itu.course.xbee.endDevice;
 
 import java.io.IOException;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 
 import se.hirt.w1.Sensor;
 import se.hirt.w1.Sensors;
@@ -26,46 +28,123 @@ import com.rapplogic.xbee.util.ByteUtils;
 
 import edu.itu.course.PropertyReading;
 import edu.itu.course.XbeeEnum;
+//
+//public class XbeeCommunication implements Runnable {
+//
+//	private final static Logger log = Logger
+//			.getLogger(XbeeCommunication.class);
+//
+//	// using future
+//
+//	// using threads
+//	@Override
+//	public void run() {
+//
+//		String transferData = XbeeEnum.ERROR_RESPONSE.toString();
+//		XBee xbee = new XBee();
+//		PropertyReading propertyReading = new PropertyReading();
+//		try {
+//			
+//			    xbee.open(propertyReading.getXbeeDevice(),Integer.parseInt(propertyReading.getXbeeBaud()));
+//			    
+//				while (true) {
+//					
+//					try {
+//						
+//						String receivedString = receiveXbeeData(xbee);
+//						log.info("received Command is:"+receivedString);
+//						// if get the data is reading
+//						if (receivedString.equals(XbeeEnum.READING)) {
+//							if (null != getTempSensorData()) {
+//								transferData = getTempSensorData();
+//							}
+//						}
+//						// if get the data is relay
+//						if (receivedString.equals(XbeeEnum.RELAY_ON)) {
+//		
+//							relayTheDevice(true);
+//							transferData=XbeeEnum.RELAY_ON_DONE.toString();
+//						}
+//						if (receivedString.equals(XbeeEnum.RELAY_OFF)) {
+//		
+//							relayTheDevice(false);
+//							transferData=XbeeEnum.RELAY_OFF_DONE.toString();
+//						} else {
+//							log.debug("received unexpected packet "
+//									+ receivedString);
+//						}
+//						log.info("sending to server data is :"+transferData);
+//						//response to the server
+//						sendXbeeData(xbee,transferData);
+//						
+//						
+//						Thread.sleep(100);
+//						
+//					} catch (Exception e) {
+//						log.error(e);
+//					}
+//					
+//				}
+//			} catch (XBeeException e1) {
+//				// TODO Auto-generated catch block
+//				e1.printStackTrace();
+//				log.error(e1);
+//			   } finally {
+//				  if (xbee != null && xbee.isConnected()) {
+//					xbee.close();
+//				}
+//			  }
+//	}
 
-public class XbeeCommunication implements Runnable {
+public class XbeeCommunication{
 
 	private final static Logger log = Logger
-			.getLogger(ZNetReceiverExample.class);
+			.getLogger(XbeeCommunication.class);
 
 	// using future
 
 	// using threads
-	@Override
-	public void run() {
+	public static void main(String[] args) throws Exception {
 
+//		BasicConfigurator.configure();
+		PropertyConfigurator.configure("log4j.properties");
+//		Properties props = new Properties();
+//		props.load(XbeeCommunication.class.getResourceAsStream("/log4j.properties"));
+		
+//		System.out.println(props.get("log4j.logger.com.rapplogic.xbee"));
+//		PropertyConfigurator.configure(props);		
+		final XbeeCommunication xbeeCommunication = new XbeeCommunication();
+		
 		String transferData = XbeeEnum.ERROR_RESPONSE.toString();
 		XBee xbee = new XBee();
 		PropertyReading propertyReading = new PropertyReading();
 		try {
+			log.info("logi coming inside=========================================");
+
 			
 			    xbee.open(propertyReading.getXbeeDevice(),Integer.parseInt(propertyReading.getXbeeBaud()));
 			    
 				while (true) {
 					
 					try {
-						
-						String receivedString = receiveXbeeData(xbee);
+						log.info("logi coming inside=========================================");
+						String receivedString = xbeeCommunication.receiveXbeeData(xbee);
 						log.info("received Command is:"+receivedString);
 						// if get the data is reading
 						if (receivedString.equals(XbeeEnum.READING)) {
-							if (null != getTempSensorData()) {
-								transferData = getTempSensorData();
+							if (null != xbeeCommunication.getTempSensorData()) {
+								transferData = xbeeCommunication.getTempSensorData();
 							}
 						}
 						// if get the data is relay
 						if (receivedString.equals(XbeeEnum.RELAY_ON)) {
 		
-							relayTheDevice(true);
+							xbeeCommunication.relayTheDevice(true);
 							transferData=XbeeEnum.RELAY_ON_DONE.toString();
 						}
 						if (receivedString.equals(XbeeEnum.RELAY_OFF)) {
 		
-							relayTheDevice(false);
+							xbeeCommunication.relayTheDevice(false);
 							transferData=XbeeEnum.RELAY_OFF_DONE.toString();
 						} else {
 							log.debug("received unexpected packet "
@@ -73,7 +152,7 @@ public class XbeeCommunication implements Runnable {
 						}
 						log.info("sending to server data is :"+transferData);
 						//response to the server
-						sendXbeeData(xbee,transferData);
+						xbeeCommunication.sendXbeeData(xbee,transferData);
 						
 						
 						Thread.sleep(100);
@@ -85,9 +164,12 @@ public class XbeeCommunication implements Runnable {
 				}
 			} catch (XBeeException e1) {
 				// TODO Auto-generated catch block
+				System.out.println("coming XBeeException=========================");
+
 				e1.printStackTrace();
 				log.error(e1);
 			   } finally {
+				   System.out.println("coming XBeeException= finally========================");
 				  if (xbee != null && xbee.isConnected()) {
 					xbee.close();
 				}
@@ -135,7 +217,7 @@ public class XbeeCommunication implements Runnable {
 	public void sendXbeeData(XBee xbee,String data) {
 		//should add into the properties file
 		
-		XBeeAddress16 address16 = new XBeeAddress16(0xFF,0xFF);
+		XBeeAddress16 address16 = new XBeeAddress16(0x56,0x78);
 		
 		final int[] payload = data.chars()
 			    .map(x -> x - 48) // 48 is the charcode of 0, 49 of 1 etc.
@@ -172,8 +254,32 @@ public class XbeeCommunication implements Runnable {
 			sensors = Sensors.getSensors();
 		
 			for (Sensor sensor : sensors) {
-				
+				//reading the temperature data
 				if (sensor.getPhysicalQuantity().equals("Temperature")) {
+					//the right one 
+					tempData = String.format("%3.2f", sensor.getValue());
+				}
+				log.info(String.format("%s(%s):%3.2f%s", sensor.getPhysicalQuantity(), sensor.getID(), sensor.getValue(), sensor.getUnitString()));
+			}
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return tempData;
+
+	}
+    public String getHumiditySensorData() {
+		
+		Set<Sensor> sensors;
+		String tempData=null;
+		try {
+			sensors = Sensors.getSensors();
+		
+			for (Sensor sensor : sensors) {
+				//reading the humidity data
+				if (sensor.getPhysicalQuantity().equals("Humidity")) {
 					//the right one 
 					tempData = String.format("%3.2f", sensor.getValue());
 				}

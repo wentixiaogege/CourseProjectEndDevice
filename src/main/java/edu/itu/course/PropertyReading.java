@@ -9,7 +9,7 @@ public class PropertyReading {
 	public String getDeviceName() {
 		Properties props = new Properties();
 		try {
-			props.load(Sensors.class.getResourceAsStream("xbee.properties"));
+			props.load(PropertyReading.class.getResourceAsStream("/xbee.properties"));
 		} catch (IOException e) {
 			System.out.println("Could not find sensors properties!");
 			e.printStackTrace();
@@ -23,7 +23,9 @@ public class PropertyReading {
 	public String getXbeeDevice() {
 		Properties props = new Properties();
 		try {
-			props.load(Sensors.class.getResourceAsStream("xbee.properties"));
+			
+			props.load(PropertyReading.class.getResourceAsStream("/xbee.properties"));
+			
 		} catch (IOException e) {
 			System.out.println("Could not find sensors properties!");
 			e.printStackTrace();
@@ -32,12 +34,13 @@ public class PropertyReading {
 		if (null == typeStr) {
 			return "";
 		}
+		System.out.println(typeStr);
 		return typeStr;
 	}
 	public String getXbeeBaud() {
 		Properties props = new Properties();
 		try {
-			props.load(Sensors.class.getResourceAsStream("xbee.properties"));
+			props.load(PropertyReading.class.getResourceAsStream("/xbee.properties"));
 		} catch (IOException e) {
 			System.out.println("Could not find sensors properties!");
 			e.printStackTrace();

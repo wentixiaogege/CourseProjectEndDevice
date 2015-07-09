@@ -41,7 +41,7 @@
 		    <configuration>
 		        <archive>
 		            <manifest>
-		                <mainClass>com.rapplogic.xbee.examples.ZNetReceiverExample</mainClass>
+		                <mainClass>edu.itu.course.xbee.endDevice.XbeeCommunication</mainClass>
 		            </manifest>
 		        </archive>
 		    </configuration>
