@@ -238,6 +238,8 @@ public class XbeeCommunication {
 	}
 	*/
 	// using getResponse
+	
+	
 	public static void main(String[] args) throws Exception {
 
 		Properties props = new Properties();
