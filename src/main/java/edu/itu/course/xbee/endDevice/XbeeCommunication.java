@@ -2,7 +2,9 @@ package edu.itu.course.xbee.endDevice;
 
 import java.io.IOException;
 import java.util.Properties;
+import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
@@ -16,6 +18,7 @@ import com.pi4j.io.gpio.GpioPinDigitalOutput;
 import com.pi4j.io.gpio.PinState;
 import com.pi4j.io.gpio.RaspiPin;
 import com.rapplogic.xbee.api.ApiId;
+import com.rapplogic.xbee.api.PacketListener;
 import com.rapplogic.xbee.api.XBee;
 import com.rapplogic.xbee.api.XBeeAddress16;
 import com.rapplogic.xbee.api.XBeeException;
@@ -28,7 +31,6 @@ import com.rapplogic.xbee.util.ByteUtils;
 
 import edu.itu.course.PropertyReading;
 import edu.itu.course.XbeeEnum;
-//
 //public class XbeeCommunication implements Runnable {
 //
 //	private final static Logger log = Logger
@@ -103,16 +105,132 @@ public class XbeeCommunication{
 
 	// using future
 
-	// using threads
+	
+	//using addPacketListener
 	public static void main(String[] args) throws Exception {
 
-//		BasicConfigurator.configure();
-		PropertyConfigurator.configure("log4j.properties");
-//		Properties props = new Properties();
-//		props.load(XbeeCommunication.class.getResourceAsStream("/log4j.properties"));
+		Properties props = new Properties();
+		props.load(XbeeCommunication.class.getResourceAsStream("/log4j.properties"));
 		
-//		System.out.println(props.get("log4j.logger.com.rapplogic.xbee"));
-//		PropertyConfigurator.configure(props);		
+		PropertyConfigurator.configure(props);		
+		final XbeeCommunication xbeeCommunication = new XbeeCommunication();
+		
+		Queue<XBeeResponse> queue = new ConcurrentLinkedQueue<XBeeResponse>();
+		
+		
+		String transferData = XbeeEnum.ERROR_RESPONSE.toString();
+		XBee xbee = new XBee();
+		PropertyReading propertyReading = new PropertyReading();
+		try {
+			log.info("logi coming inside=========================================");
+
+			
+			    xbee.open(propertyReading.getXbeeDevice(),Integer.parseInt(propertyReading.getXbeeBaud()));
+			    
+			    xbee.addPacketListener(new PacketListener() {
+				      public void processResponse(XBeeResponse response) {
+//				        queue.offer(response);
+				    	
+				    	  if (response.getApiId() == ApiId.RX_16_RESPONSE) {
+				    		  
+								// we received a packet from .java
+								RxResponse16 rx = (RxResponse16) response;
+
+								String receivedString = ByteUtils.toString(rx.getData());
+								String transferData = XbeeEnum.ERROR_RESPONSE.toString();
+								log.debug("Received RX packet, options is" + rx.getOptions()
+										+ ", sender address is " + rx.getRemoteAddress()
+										+ ", data is " + receivedString);
+								if (receivedString.equals(XbeeEnum.READING)) {
+									try {
+										if (null != xbeeCommunication.getTempSensorData()) {
+											transferData = xbeeCommunication.getTempSensorData();
+										}
+									} catch (IOException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+								}
+								// if get the data is relay
+								if (receivedString.equals(XbeeEnum.RELAY_ON)) {
+				
+									xbeeCommunication.relayTheDevice(true);
+									transferData=XbeeEnum.RELAY_ON_DONE.toString();
+								}
+								if (receivedString.equals(XbeeEnum.RELAY_OFF)) {
+				
+									xbeeCommunication.relayTheDevice(false);
+									transferData=XbeeEnum.RELAY_OFF_DONE.toString();
+								} else {
+									log.debug("received unexpected packet "
+											+ receivedString);
+								}
+								log.info("sending to server data is :"+transferData);
+								//response to the server
+								xbeeCommunication.sendXbeeData(xbee,transferData);
+								
+						  }
+				      }
+				    }
+				    );
+				/*while (true) {
+					
+					try {
+						log.info("logi coming inside=========================================");
+						String receivedString = xbeeCommunication.receiveXbeeData(xbee);
+						log.info("received Command is:"+receivedString);
+						// if get the data is reading
+						if (receivedString.equals(XbeeEnum.READING)) {
+							if (null != xbeeCommunication.getTempSensorData()) {
+								transferData = xbeeCommunication.getTempSensorData();
+							}
+						}
+						// if get the data is relay
+						if (receivedString.equals(XbeeEnum.RELAY_ON)) {
+		
+							xbeeCommunication.relayTheDevice(true);
+							transferData=XbeeEnum.RELAY_ON_DONE.toString();
+						}
+						if (receivedString.equals(XbeeEnum.RELAY_OFF)) {
+		
+							xbeeCommunication.relayTheDevice(false);
+							transferData=XbeeEnum.RELAY_OFF_DONE.toString();
+						} else {
+							log.debug("received unexpected packet "
+									+ receivedString);
+						}
+						log.info("sending to server data is :"+transferData);
+						//response to the server
+						xbeeCommunication.sendXbeeData(xbee,transferData);
+						
+						
+						Thread.sleep(100);
+						
+					} catch (Exception e) {
+						log.error(e);
+					}
+					
+				}*/
+			} catch (XBeeException e1) {
+				// TODO Auto-generated catch block
+				System.out.println("coming XBeeException=========================");
+
+				e1.printStackTrace();
+				log.error(e1);
+			   } finally {
+				   System.out.println("coming XBeeException= finally========================");
+				  if (xbee != null && xbee.isConnected()) {
+					xbee.close();
+				}
+			  }
+	}
+	// using getResponse
+/*	public static void main(String[] args) throws Exception {
+
+		Properties props = new Properties();
+		props.load(XbeeCommunication.class.getResourceAsStream("/log4j.properties"));
+		
+		PropertyConfigurator.configure(props);		
 		final XbeeCommunication xbeeCommunication = new XbeeCommunication();
 		
 		String transferData = XbeeEnum.ERROR_RESPONSE.toString();
@@ -174,9 +292,9 @@ public class XbeeCommunication{
 					xbee.close();
 				}
 			  }
-	}
+	}*/
 
-	public String receiveXbeeData(XBee xbee) {
+	public String receiveXbeeData(XBee xbee) throws XBeeException {
 
 		try {
 			
@@ -198,17 +316,20 @@ public class XbeeCommunication{
 		}catch(XBeeTimeoutException timeout){
 			
 			log.info("server timeout"+timeout.getMessage());
-			
+			throw new XBeeTimeoutException();
 		}
 		catch (XBeeException e1)
 		{
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 				log.error(e1);
+				throw new XBeeException(e1);
 		}finally {
+			      
 				  if (xbee != null && xbee.isConnected()) {
 					xbee.close();
 				}
+				  
 			  }
 		return null;
 
@@ -246,7 +367,7 @@ public class XbeeCommunication{
 		}
 		
 	}
-	public String getTempSensorData() {
+	public String getTempSensorData() throws IOException {
 		
 		Set<Sensor> sensors;
 		String tempData=null;
@@ -265,12 +386,13 @@ public class XbeeCommunication{
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			throw new IOException(e);
 		}
 		
 		return tempData;
 
 	}
-    public String getHumiditySensorData() {
+    public String getHumiditySensorData() throws IOException {
 		
 		Set<Sensor> sensors;
 		String tempData=null;
@@ -289,6 +411,7 @@ public class XbeeCommunication{
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			throw new IOException(e);
 		}
 		
 		return tempData;
