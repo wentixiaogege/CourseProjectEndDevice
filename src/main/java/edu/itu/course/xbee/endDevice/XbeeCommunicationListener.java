@@ -94,101 +94,187 @@ import edu.itu.course.XbeeEnum;
 //	}
 
 //using packet listener
-public class XbeeCommunication  {
+public class XbeeCommunicationListener implements PacketListener {
 
-	private final static Logger log = Logger.getLogger(XbeeCommunication.class);
+	private final static Logger log = Logger.getLogger(XbeeCommunicationListener.class);
 
 	// using future
 
-	private XbeeCommunication() {
+	// using addPacketListener
+	// Properties props = null;
 
-	}
+	Properties props = new Properties();
+	XBee xbee = new XBee();
+	PropertyReading propertyReading = new PropertyReading();
 
+	Set<Sensor> sensors = Sensors.getSensors();
 
-	public static void main(String[] args) throws Exception {
+	GpioController gpio = GpioFactory.getInstance();
 
-		Properties props = new Properties();
-		props.load(XbeeCommunication.class.getResourceAsStream("/log4j.properties"));
+	GpioPinDigitalOutput pin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_12, propertyReading.getDeviceName(), PinState.LOW);
 
-		PropertyConfigurator.configure(props);
-		final XbeeCommunication xbeeCommunication = new XbeeCommunication();
+	/*
+	 * Set<Sensor> sensors = null;
+	 * 
+	 * 
+	 * GpioController gpio = null;
+	 * 
+	 * 
+	 * GpioPinDigitalOutput pin = null;
+	 */
 
-		String transferData = XbeeEnum.ERROR_RESPONSE.getValue();
-		final XBee xbee = new XBee();
-		PropertyReading propertyReading = new PropertyReading();
+	private XbeeCommunicationListener() {
 
-		Set<Sensor> sensors;
-
-		final GpioController gpio = GpioFactory.getInstance();
-
-		final GpioPinDigitalOutput pin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_12, propertyReading.getDeviceName(), PinState.LOW);
 		try {
 
+			// configure log4j
+			props.load(XbeeCommunicationListener.class.getResourceAsStream("/log4j.properties"));
+
+			PropertyConfigurator.configure(props);
 			log.info("xbee opening---------");
 
-			xbee.open(propertyReading.getXbeeDevice(), Integer.parseInt(propertyReading.getXbeeBaud())); // xbee.open("/dev/ttyUSB0",9600);
+			xbee.open(propertyReading.getXbeeDevice(), Integer.parseInt(propertyReading.getXbeeBaud()));
+			// xbee.open("/dev/ttyUSB0",9600);
 
 			log.info("xbee opened---------");
 
-			sensors = Sensors.getSensors();
-
+//			sensors = Sensors.getSensors();
 			log.info("found " + sensors.size() + "sensors");
 
-			while (true) {
-
-				try {
-					log.info("start receive data from here ---------------");
-					String receivedString = xbeeCommunication.receiveXbeeData(xbee);
-					log.info("received Command is:" + receivedString);
-					// if get the data is reading
-					if (receivedString.equals(XbeeEnum.READING.getValue())) {
-						log.info("start reading data :-----");
-						if (null != xbeeCommunication.getTempSensorData(sensors)) {
-							transferData = xbeeCommunication.getTempSensorData(sensors);
-
-							log.info("received data is:" + transferData);
-						}
-						xbeeCommunication.sendXbeeData(xbee, transferData);
-					} // if get the data is relay
-					else if (receivedString.equals(XbeeEnum.RELAY_ON.getValue())) {
-
-						log.info("start relayon device :-----");
-						xbeeCommunication.relayTheDevice(pin, true);
-						transferData = XbeeEnum.RELAY_ON_DONE.getValue();
-					} else if (receivedString.equals(XbeeEnum.RELAY_OFF.getValue())) {
-
-						log.info("start relayoff device :-----");
-						xbeeCommunication.relayTheDevice(pin, false);
-						transferData = XbeeEnum.RELAY_OFF_DONE.getValue();
-					} else if (receivedString.equals(XbeeEnum.GET_DEVICE_NAME.getValue())) {
-
-						log.info("start get device name :-----");
-						xbeeCommunication.relayTheDevice(pin, false);
-						transferData = XbeeEnum.GET_DEVICE_NAME_DONE.getValue();
-					} else {
-						log.debug("received unexpected packet " + receivedString);
-					}
-					log.info("sending to server data is :" + transferData); // response to the server xbeeCommunication.sendXbeeData(xbee,transferData);
-
-//					Thread.sleep(100);
-					
-				} catch (Exception e) {
-					log.error(e);
-				}
-
+			xbee.addPacketListener(this);
+			// wait forever
+			synchronized (this) {
+				this.wait();
 			}
-		} catch (XBeeException e1) { // TODO Auto-generated catch block System.out.println("coming XBeeException=========================");
 
+		} catch (XBeeException e1) {
+			// TODO Auto-generated catch block
 			e1.printStackTrace();
-			log.error(e1);
+			log.error("XBeeException" + e1);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			log.error("InterruptedException" + e);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			log.error("IOException" + e);
 		} finally {
-			System.out.println("coming XBeeException= finally========================");
+			log.info("coming XBeeException= finally========================");
 			if (xbee != null && xbee.isConnected()) {
 				xbee.close();
 			}
 		}
 	}
 
+	public static void main(String[] args) throws Exception {
+
+		new XbeeCommunicationListener();
+
+	}
+
+	@Override
+	public void processResponse(XBeeResponse response) {
+
+		// TODO Auto-generated method stub
+		if (response.getApiId() == ApiId.RX_16_RESPONSE) {
+
+			// we received a packet from .java
+			RxResponse16 rx = (RxResponse16) response;
+
+			String receivedString = ByteUtils.toString(rx.getData());
+			String transferData = XbeeEnum.ERROR_RESPONSE.toString();
+			log.debug("Received RX packet, options is" + rx.getOptions() + ", sender address is " + rx.getRemoteAddress() + ", data is " + receivedString);
+			// if get the data is reading
+			if (receivedString.equals(XbeeEnum.READING.getValue())) {
+				log.info("start reading data :-----");
+				try {
+					if (null != getTempSensorData(sensors)) {
+						transferData = getTempSensorData(sensors);
+
+						log.info("received data is:" + transferData);
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				sendXbeeData(xbee, transferData);
+			}
+			// if get the data is relay
+			else if (receivedString.equals(XbeeEnum.RELAY_ON.getValue())) {
+
+				log.info("start relayon device :-----");
+				relayTheDevice(pin, true);
+				transferData = XbeeEnum.RELAY_ON_DONE.getValue();
+			} else if (receivedString.equals(XbeeEnum.RELAY_OFF.getValue())) {
+
+				log.info("start relayoff device :-----");
+				relayTheDevice(pin, false);
+				transferData = XbeeEnum.RELAY_OFF_DONE.getValue();
+			} else if (receivedString.equals(XbeeEnum.GET_DEVICE_NAME.getValue())) {
+
+				log.info("start get  device name:-----");
+				relayTheDevice(pin, false);
+				transferData = XbeeEnum.GET_DEVICE_NAME_DONE.getValue();
+			} else {
+				log.debug("received unexpected packet " + receivedString);
+			}
+			log.info("sending to server data is :" + transferData);
+			// response to the server
+//			sendXbeeData(xbee, transferData);
+		}
+
+	}
+
+	/*
+	 * // using getResponse public static void main(String[] args) throws Exception {
+	 * 
+	 * Properties props = new Properties(); props.load(XbeeCommunication.class.getResourceAsStream("/log4j.properties"));
+	 * 
+	 * PropertyConfigurator.configure(props); final XbeeCommunication xbeeCommunication = new XbeeCommunication();
+	 * 
+	 * String transferData = XbeeEnum.ERROR_RESPONSE.getValue(); final XBee xbee = new XBee(); PropertyReading propertyReading = new PropertyReading();
+	 * 
+	 * Set<Sensor> sensors;
+	 * 
+	 * 
+	 * final GpioController gpio = GpioFactory.getInstance();
+	 * 
+	 * 
+	 * final GpioPinDigitalOutput pin = gpio .provisionDigitalOutputPin(RaspiPin.GPIO_12, propertyReading.getDeviceName(), PinState.LOW); try {
+	 * 
+	 * log.info("xbee opening---------");
+	 * 
+	 * xbee.open(propertyReading.getXbeeDevice(),Integer.parseInt(propertyReading.getXbeeBaud())); // xbee.open("/dev/ttyUSB0",9600);
+	 * 
+	 * log.info("xbee opened---------");
+	 * 
+	 * sensors = Sensors.getSensors();
+	 * 
+	 * log.info("found "+sensors.size()+"sensors");
+	 * 
+	 * while (true) {
+	 * 
+	 * try { log.info("start receive data from here ---------------"); String receivedString = xbeeCommunication.receiveXbeeData(xbee); log.info("received Command is:"+receivedString); // if get the data is reading if (receivedString.equals(XbeeEnum.READING.getValue())) { log.info("start reading data :-----"); if (null != xbeeCommunication.getTempSensorData(sensors)) {
+	 * transferData = xbeeCommunication.getTempSensorData(sensors);
+	 * 
+	 * log.info("received data is:"+transferData); } } // if get the data is relay else if (receivedString.equals(XbeeEnum.RELAY_ON.getValue())) {
+	 * 
+	 * log.info("start relayon device :-----"); xbeeCommunication.relayTheDevice(pin,true); transferData=XbeeEnum.RELAY_ON_DONE.getValue(); } else if (receivedString.equals(XbeeEnum.RELAY_OFF.getValue())) {
+	 * 
+	 * log.info("start relayoff device :-----"); xbeeCommunication.relayTheDevice(pin,false); transferData=XbeeEnum.RELAY_OFF_DONE.getValue(); } else if (receivedString.equals(XbeeEnum.GET_DEVICE_NAME.getValue())) {
+	 * 
+	 * log.info("start get device name :-----"); xbeeCommunication.relayTheDevice(pin,false); transferData=XbeeEnum.GET_DEVICE_NAME_DONE.getValue(); }else { log.debug("received unexpected packet " + receivedString); } log.info("sending to server data is :"+transferData); //response to the server xbeeCommunication.sendXbeeData(xbee,transferData);
+	 * 
+	 * 
+	 * Thread.sleep(100);
+	 * 
+	 * } catch (Exception e) { log.error(e); }
+	 * 
+	 * } } catch (XBeeException e1) { // TODO Auto-generated catch block System.out.println("coming XBeeException=========================");
+	 * 
+	 * e1.printStackTrace(); log.error(e1); } finally { System.out.println("coming XBeeException= finally========================"); if (xbee != null && xbee.isConnected()) { xbee.close(); } } }
+	 */
 	public String receiveXbeeData(XBee xbee) throws XBeeException {
 
 		try {
@@ -247,8 +333,8 @@ public class XbeeCommunication  {
 			} else {
 				log.error("response is Error" + response.getStatus());
 			}
-			// xbee.clearResponseQueue();
-			// xbee
+//			xbee.clearResponseQueue();
+//			xbee
 		} catch (XBeeTimeoutException e) {
 			log.warn("request timed out");
 		} catch (XBeeException e) {
