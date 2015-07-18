@@ -1,13 +1,20 @@
 package edu.itu.course.xbee.endDevice;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Properties;
 import java.util.Set;
+
 import javax.xml.bind.DatatypeConverter;
+
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+
 import se.hirt.w1.Sensor;
 import se.hirt.w1.Sensors;
+
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
 import com.pi4j.io.gpio.GpioPinDigitalOutput;
@@ -24,6 +31,7 @@ import com.rapplogic.xbee.api.wpan.RxResponse16;
 import com.rapplogic.xbee.api.wpan.TxRequest16;
 import com.rapplogic.xbee.api.wpan.TxStatusResponse;
 import com.rapplogic.xbee.util.ByteUtils;
+
 import edu.itu.course.PropertyReading;
 import edu.itu.course.XbeeEnum;
 //public class XbeeCommunication implements Runnable {
@@ -133,42 +141,50 @@ public class XbeeCommunication  {
 			sensors = Sensors.getSensors();
 
 			log.info("found " + sensors.size() + "sensors");
+			
 
+			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			
+			
 			while (true) {
 
 				try {
 					log.info("start receive data from here ---------------");
 					String receivedString = xbeeCommunication.receiveXbeeData(xbee);
 					log.info("received Command is:" + receivedString);
+					if (null == receivedString) {
+						
+						log.info("null data coming");
+						continue;
+					}
 					// if get the data is reading
-					if (receivedString.equals(XbeeEnum.READING.getValue())) {
+					else if (receivedString.equals(XbeeEnum.READING.getValue())) {
 						log.info("start reading data :-----");
 						if (null != xbeeCommunication.getTempSensorData(sensors)) {
-							transferData = xbeeCommunication.getTempSensorData(sensors);
-
-							log.info("received data is:" + transferData);
+							
+							transferData = propertyReading.getDeviceId()+","
+									      +propertyReading.getDeviceName()+","
+									      +xbeeCommunication.getTempSensorData(sensors)+","
+									      +dateFormat.format(new Date()).toString();
+							log.info("going to send temp data is:" + transferData);
+							xbeeCommunication.sendXbeeData(xbee, transferData);
 						}
-						xbeeCommunication.sendXbeeData(xbee, transferData);
 					} // if get the data is relay
 					else if (receivedString.equals(XbeeEnum.RELAY_ON.getValue())) {
 
 						log.info("start relayon device :-----");
 						xbeeCommunication.relayTheDevice(pin, true);
-						transferData = XbeeEnum.RELAY_ON_DONE.getValue();
+//						transferData = XbeeEnum.RELAY_ON_DONE.getValue();
 					} else if (receivedString.equals(XbeeEnum.RELAY_OFF.getValue())) {
 
 						log.info("start relayoff device :-----");
 						xbeeCommunication.relayTheDevice(pin, false);
-						transferData = XbeeEnum.RELAY_OFF_DONE.getValue();
-					} else if (receivedString.equals(XbeeEnum.GET_DEVICE_NAME.getValue())) {
-
-						log.info("start get device name :-----");
-						xbeeCommunication.relayTheDevice(pin, false);
-						transferData = XbeeEnum.GET_DEVICE_NAME_DONE.getValue();
-					} else {
+//						transferData = XbeeEnum.RELAY_OFF_DONE.getValue();
+					} 
+					/*else {
 						log.debug("received unexpected packet " + receivedString);
-					}
-					log.info("sending to server data is :" + transferData); // response to the server xbeeCommunication.sendXbeeData(xbee,transferData);
+					}*/
+//					log.info("sending to server data is :" + transferData); // response to the server xbeeCommunication.sendXbeeData(xbee,transferData);
 
 //					Thread.sleep(100);
 					
@@ -259,6 +275,7 @@ public class XbeeCommunication  {
 
 	public String getTempSensorData(Set<Sensor> sensors) throws IOException {
 
+		String reString =null;
 		try {
 			for (Sensor sensor : sensors) {
 				// reading the temperature data
@@ -266,7 +283,8 @@ public class XbeeCommunication  {
 					// the right one
 
 					log.debug("String.format(\"%3.2f\", sensor.getValue());" + String.format("%3.2f", sensor.getValue()));
-					return String.format("%3.2f", sensor.getValue());
+					reString =  String.format("%3.2f", sensor.getValue());
+					break;
 				}
 				log.debug(String.format("%s(%s):%3.2f%s", sensor.getPhysicalQuantity(), sensor.getID(), sensor.getValue(), sensor.getUnitString()));
 			}
@@ -276,12 +294,12 @@ public class XbeeCommunication  {
 			e.printStackTrace();
 			throw new IOException(e);
 		}
-		return null;
+		return reString;
 
 	}
 
 	public String getHumiditySensorData(Set<Sensor> sensors) throws IOException {
-
+		String reString =null;
 		try {
 
 			for (Sensor sensor : sensors) {
@@ -289,7 +307,7 @@ public class XbeeCommunication  {
 				if (String.format("%s", sensor.getPhysicalQuantity()).equals("Humidity")) {
 					// the right one
 					log.debug("String.format(\"%3.2f\", sensor.getValue());" + String.format("%3.2f", sensor.getValue()));
-					return String.format("%3.2f", sensor.getValue());
+					reString =  String.format("%3.2f", sensor.getValue());
 				}
 				log.info(String.format("%s(%s):%3.2f%s", sensor.getPhysicalQuantity(), sensor.getID(), sensor.getValue(), sensor.getUnitString()));
 			}
@@ -300,7 +318,7 @@ public class XbeeCommunication  {
 			throw new IOException(e);
 		}
 
-		return null;
+		return reString;
 
 	}
 
@@ -310,6 +328,7 @@ public class XbeeCommunication  {
 
 	}
 
+	
 	// using constructor
 	/*
 	 * private XbeeCommunication() throws Exception {
