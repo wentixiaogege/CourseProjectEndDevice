@@ -211,7 +211,7 @@ public class XbeeCommunication  {
 			// forever waiting here
 			XBeeResponse response = xbee.getResponse();
 
-			log.debug("received response " + response.toString());
+			log.info("received response " + response.toString());
 
 			if (response.getApiId() == ApiId.RX_16_RESPONSE) {
 				// we received a packet from ZNetSenderTest.java
@@ -259,9 +259,9 @@ public class XbeeCommunication  {
 			log.debug("received response " + response);
 
 			if (response.isSuccess()) {
-				log.info("response is Success" + response.getStatus());
+				log.info("response is " + response.getStatus());
 			} else {
-				log.error("response is Error" + response.getStatus());
+				log.error("response is " + response.getStatus());
 			}
 			// xbee.clearResponseQueue();
 			// xbee
