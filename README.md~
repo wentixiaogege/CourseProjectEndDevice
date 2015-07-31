@@ -28,9 +28,8 @@ Then I am going to talk about how to make the system work , be sure you have dow
 	1. the raspberry OS:
 	The first is you need to install and configure the system in the raspberry pi ,which using as SD card as its memeory and storage ,I am 		not going to talk about how to install the r aspberry OS here you can find more tutorials here: https://www.raspberrypi.org
 	2.The connection of the DHT11 temp sensor and the device 
-              2.1 connect temp sensor
-              you need three wires to get data from the DHT11 sensor, which is power/ground/data
-  	  below is my connection:
+	2.1 connect temp sensor
+	you need three wires to get data from the DHT11 sensor, which is power/ground/data .below is my connection:
                               
                                                              
 
