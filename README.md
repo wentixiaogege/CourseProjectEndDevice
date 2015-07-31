@@ -126,7 +126,8 @@ Then I am going to talk about how to make the system work , be sure you have dow
  
 Software:
 
-   After the hardware part is done! You need to install some libraries and configure to make the system runing.
+	After the hardware part is done! You need to install some libraries and configure to make the system runing.
+
 	0. install DHT-11 driver :(optional in server part)
 	download code from here:   https://github.com/adafruit/Adafruit-Raspberry-Pi-Python-Code/tree/master/Adafruit_DHT_Driver 
 	cd into this folder and then using the command  : make 
