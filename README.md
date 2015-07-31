@@ -28,9 +28,8 @@ Then I am going to talk about how to make the system work , be sure you have dow
 	1. the raspberry OS:
 	The first is you need to install and configure the system in the raspberry pi ,which using as SD card as its memeory and storage ,I am 		not going to talk about how to install the r aspberry OS here you can find more tutorials here: https://www.raspberrypi.org
 	2.The connection of the DHT11 temp sensor and the device 
-              2.1 connect temp sensor
-              you need three wires to get data from the DHT11 sensor, which is power/ground/data
-  	  below is my connection:
+	2.1 connect temp sensor
+	you need three wires to get data from the DHT11 sensor, which is power/ground/data .below is my connection:
                               
                                                              
 
@@ -75,13 +74,13 @@ Then I am going to talk about how to make the system work , be sure you have dow
 
   
 
-3.the xbee connection :
-   for the xbee connection you may need using XCTU for confire the xbee :
-http://www.libelium.com/development/waspmote/documentation/x-ctu-tutorial/
-   for how to configure the xbee different mode learn form here:
- http://www.arduino-hacks.com/xbee-api-mode/
-  below is my configure: 
-	1. for end device:
+	3.the xbee connection :
+  	 for the xbee connection you may need using XCTU for confire the xbee :
+		http://www.libelium.com/development/waspmote/	documentation/x-ctu-tutorial/
+   	 for how to configure the xbee different mode learn form here:
+ 		http://www.arduino-hacks.com/xbee-api-mode/
+	  	below is my configure: 
+		1. for end device:
 
 
 
@@ -99,8 +98,8 @@ http://www.libelium.com/development/waspmote/documentation/x-ctu-tutorial/
 
 
 
-	2. for server device:
-   
+		2. for server device:
+	   
 
 
 
@@ -119,13 +118,14 @@ http://www.libelium.com/development/waspmote/documentation/x-ctu-tutorial/
 
 
 
-after you plugin the xbee device into your system use command below:
+	after you plugin the xbee device into your system use command below:
              ls /dev/tty
- you will get a device named 
+	you will get a device named 
           “ttyUSB*” * means numbers:
 
  
-    Software:
+Software:
+
     After the hardware part is done! You need to install some libraries and configure to make the system runing.
 	0. install DHT-11 driver :
             download code from here:   https://github.com/adafruit/Adafruit-Raspberry-Pi-Python-Code/tree/master/Adafruit_DHT_Driver 
@@ -151,14 +151,16 @@ after you plugin the xbee device into your system use command below:
 		Now you should be able to execute java
 
 	2. install java serial tools
- 		You can install RXTX like this:
+ 	You can install RXTX like this:
 		$ sudo apt-get install librxtx-java
 	3.set up the end device part 
 	Be sure you have download maven2 .if you haven't run below command in the command line:
          	sudo apt-get install maven2
      	Be sure you have download 
-                 CourseProject : https://github.com/wentixiaogege/CourseProject   ;
-		 CourseProjectEndDevice: https://github.com/wentixiaogege/CourseProjectEndDevice;
+	CourseProject : 
+		https://github.com/wentixiaogege/CourseProject   ;
+	CourseProjectEndDevice: 
+		https://github.com/wentixiaogege/CourseProjectEndDevice;
     	import those projects into your eclipse you will see all the avaibleable code,make sure there is no error show up.
        
                  
@@ -176,9 +178,9 @@ after you plugin the xbee device into your system use command below:
 
 	cd to the CourseProject folder and then run below:
                          mvn clean install 
-        cd to the CourseProjectEndDevice folder and then run below :
+	cd to the CourseProjectEndDevice folder and then run below :
                          mvn clean install 
-        everything shoul went well and then you will get a XXXX.jar package like below:
+	everything shoul went well and then you will get a XXXX.jar package like below:
 
                     
 
@@ -199,7 +201,7 @@ after you plugin the xbee device into your system use command below:
 
 
       copy and paste this XXXX.jar package into your raspberry OS system anywhere you want and run the below command:
-      sudo java -Djava.library.path=/usr/lib/jni/ -jar yourpackagename.jar 
+		sudo java -Djava.library.path=/usr/lib/jni/ -jar yourpackagename.jar 
 
 and you are set .!!!!!!!
 
