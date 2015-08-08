@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.Properties;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.xml.bind.DatatypeConverter;
@@ -37,10 +39,29 @@ import com.rapplogic.xbee.util.ByteUtils;
 import edu.itu.course.PropertyReading;
 import edu.itu.course.XbeeEnum;
 
-public class TestXbeelistener {
 
-	private final static Logger log = Logger.getLogger(TestXbeelistener.class);
+/** 
+* @ClassName: XbeeListener 
+* @Description: TODO 
+* This Class is used in the end 
+* @author Jack Li E-mail:wentixiaogege@gmail.com
+* @date Aug 7, 2015 1:47:49 PM 
+*  
+*/ 
+public class XbeeListener {
 
+	private final static Logger log = Logger.getLogger(XbeeListener.class);
+
+	
+	/** 
+	* @Title: receiveXbeeData 
+	* @Description: TODO(describe the functions of this method) 
+	* @param @param xbee
+	* @param @return
+	* @param @throws XBeeException    
+	* @return String    
+	* @throws 
+	*/ 
 	public String receiveXbeeData(XBee xbee) throws XBeeException {
 
 		try {
@@ -73,6 +94,15 @@ public class TestXbeelistener {
 
 	}
 
+	
+	/** 
+	* @Title: sendXbeeData 
+	* @Description: TODO(describe the functions of this method) 
+	* @param @param xbee
+	* @param @param data    
+	* @return void    
+	* @throws 
+	*/ 
 	public void sendXbeeData(XBee xbee, String data) {
 		// should add into the properties file
 		PropertyReading propertyReading = new PropertyReading();
@@ -114,6 +144,16 @@ public class TestXbeelistener {
 
 	}
 
+	
+	/** 
+	* @Title: getTempSensorData 
+	* @Description: TODO(describe the functions of this method) 
+	* @param @param sensors
+	* @param @return
+	* @param @throws IOException    
+	* @return String    
+	* @throws 
+	*/ 
 	public String getTempSensorData(Set<Sensor> sensors) throws IOException {
 
 		try {
@@ -141,6 +181,16 @@ public class TestXbeelistener {
 
 	}
 
+	
+	/** 
+	* @Title: getHumiditySensorData 
+	* @Description: TODO(describe the functions of this method) 
+	* @param @param sensors
+	* @param @return
+	* @param @throws IOException    
+	* @return String    
+	* @throws 
+	*/ 
 	public String getHumiditySensorData(Set<Sensor> sensors) throws IOException {
 
 		try {
@@ -169,21 +219,41 @@ public class TestXbeelistener {
 
 	}
 
+	
+	/** 
+	* @Title: relayTheDevice 
+	* @Description: TODO(describe the functions of this method) 
+	* @param @param pin
+	* @param @param state    
+	* @return void    
+	* @throws 
+	*/ 
 	public void relayTheDevice(GpioPinDigitalOutput pin, boolean state) {
 
 		pin.setState(state);
 
 	}
 
+	
+	/** 
+	* @Title: main 
+	* @Description: TODO(describe the functions of this method) 
+	* @param @param args
+	* @param @throws Exception    
+	* @return void    
+	* @throws 
+	*/ 
 	public static void main(String[] args) throws Exception {
 
 		// using future
 
 		// using addPacketListener
 		// Properties props = null;
-		Queue<XBeeResponse> queue = new ConcurrentLinkedQueue<XBeeResponse>();
+//		Queue<XBeeResponse> queue = new ConcurrentLinkedQueue<XBeeResponse>();
+		BlockingQueue<XBeeResponse> queue = new ArrayBlockingQueue<XBeeResponse>(30);
+
 		XBeeResponse response;
-		TestXbeelistener testXbeelistener = new TestXbeelistener();
+		XbeeListener testXbeelistener = new XbeeListener();
 		Properties props = new Properties();
 		XBee xbee = new XBee();
 		PropertyReading propertyReading = new PropertyReading();
@@ -228,9 +298,11 @@ public class TestXbeelistener {
 
 			// we got something!
 			try {
+				//
+				log.info("into while queue.poll here---------------\n");
 				if ((response = queue.poll()) != null) {
 
-					log.info("into while queue.poll here---------------\n");
+					
 					// TODO Auto-generated method stub
 					if (response.getApiId() == ApiId.RX_16_RESPONSE) {
 
