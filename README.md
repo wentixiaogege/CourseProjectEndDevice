@@ -31,7 +31,7 @@ Then I am going to talk about how to make the system work , be sure you have dow
 	2.1 connect temp sensor
 	you need three wires to get data from the DHT11 sensor, which is power/ground/data .below is my connection:
                               
-![alt tag](https://github.com/wentixiaogege/CourseProjectEndDevice/readme_img/temp_connection.png)                                               
+![alt tag](https://github.com/wentixiaogege/CourseProjectEndDevice/blob/master/readme_img/temp_connection.png)                                               
 
 
 
