@@ -31,18 +31,7 @@ Then I am going to talk about how to make the system work , be sure you have dow
 	2.1 connect temp sensor
 	you need three wires to get data from the DHT11 sensor, which is power/ground/data .below is my connection:
                               
-![alt tag](https://github.com/wentixiaogege/CourseProjectEndDevice/blob/master/readme_img/temp_connection.png)                                               
-
-
-
-
-
-
-
-
-
-
-
+	![alt tag](https://github.com/wentixiaogege/CourseProjectEndDevice/blob/master/readme_img/temp_connection.png)                                               
 
 
 	I mainly get the inspiration from this website: http://hirt.se/blog/?p=493
@@ -58,7 +47,7 @@ Then I am going to talk about how to make the system work , be sure you have dow
 	2.2 connect the relay device
        relay something is just like relay a led device ,you only need to wires to relay a device which is state and ground: connection like below:
              
-	   
+	   ![alt tag](https://github.com/wentixiaogege/CourseProjectEndDevice/blob/master/readme_img/relay_connection.png)   
 
 
 
@@ -81,7 +70,7 @@ Then I am going to talk about how to make the system work , be sure you have dow
  		http://www.arduino-hacks.com/xbee-api-mode/
 	  	below is my configure: 
 		1. for end device:
-
+		![alt tag](https://github.com/wentixiaogege/CourseProjectEndDevice/blob/master/readme_img/xbee_end.png)   
 
 
 
@@ -99,7 +88,7 @@ Then I am going to talk about how to make the system work , be sure you have dow
 
 
 		2. for server device:
-	   
+	   ![alt tag](https://github.com/wentixiaogege/CourseProjectEndDevice/blob/master/readme_img/xbee_server.png)
 
 
 
@@ -164,7 +153,7 @@ Software:
 		https://github.com/wentixiaogege/CourseProjectEndDevice;
     	import those projects into your eclipse you will see all the avaibleable code,make sure there is no error show up.
        
-                 
+    ![alt tag](https://github.com/wentixiaogege/CourseProjectEndDevice/blob/master/readme_img/eclipse_end_init.png)             
 
 
 
@@ -183,7 +172,7 @@ Software:
                          mvn clean install 
 	everything shoul went well and then you will get a XXXX.jar package like below:
 
-                    
+     ![alt tag](https://github.com/wentixiaogege/CourseProjectEndDevice/blob/master/readme_img/eclipse_end_compiled.png)                        
 
 
 
