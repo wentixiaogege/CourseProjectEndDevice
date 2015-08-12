@@ -5,20 +5,15 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
-import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
 import javax.xml.bind.DatatypeConverter;
-
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-
 import se.hirt.w1.Sensor;
 import se.hirt.w1.Sensors;
-
+import se.hirt.w1.impl.DHTSensor;
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
 import com.pi4j.io.gpio.GpioPinDigitalOutput;
@@ -252,13 +247,13 @@ public class XbeeListener {
 //		Queue<XBeeResponse> queue = new ConcurrentLinkedQueue<XBeeResponse>();
 		BlockingQueue<XBeeResponse> queue = new ArrayBlockingQueue<XBeeResponse>(30);
 
-		XBeeResponse response;
+		
 		XbeeListener testXbeelistener = new XbeeListener();
 		Properties props = new Properties();
 		XBee xbee = new XBee();
 		PropertyReading propertyReading = new PropertyReading();
 
-		Set<Sensor> sensors = Sensors.getSensors();
+		DHTSensor sensor = Sensors.getDHTSensor();
 
 		GpioController gpio = GpioFactory.getInstance();
 
@@ -266,7 +261,7 @@ public class XbeeListener {
 				.provisionDigitalOutputPin(RaspiPin.GPIO_12,
 						propertyReading.getDeviceName(), PinState.LOW);
 
-		props.load(XbeeCommunicationListener.class
+		props.load(XbeeListener.class
 				.getResourceAsStream("/log4j.properties"));
 
 		PropertyConfigurator.configure(props);
@@ -281,7 +276,7 @@ public class XbeeListener {
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 		// sensors = Sensors.getSensors();
-		log.info("found " + sensors.size() + "sensors");
+//		log.info("found " + sensors.size() + "sensors");
 
 		xbee.addPacketListener(new PacketListener() {
 
@@ -289,77 +284,107 @@ public class XbeeListener {
 			public void processResponse(XBeeResponse response) {
 
 				log.info("adding a packet here ----------\n" + queue.size());
-				queue.add(response);
+//				queue.add(response);
+				try {
+					queue.put(response);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 
 		});
 
-		while (true) {
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				XBeeResponse response;
+				while (true) {
 
-			// we got something!
-			try {
-				//
-				log.info("into while queue.poll here---------------\n");
-				if ((response = queue.poll()) != null) {
+					// we got something!
+					try {
+						//
+						log.info("into while queue.poll here---------------\n"+queue.size());
+						
+						if ((response = queue.take()) != null) {
+							
+						log.info("inside while queue.poll here---------------\n"+queue.size());
+							// TODO Auto-generated method stub
+							if (response.getApiId() == ApiId.RX_16_RESPONSE) {
 
-					
-					// TODO Auto-generated method stub
-					if (response.getApiId() == ApiId.RX_16_RESPONSE) {
+								// we received a packet from .java
+								RxResponse16 rx = (RxResponse16) response;
 
-						// we received a packet from .java
-						RxResponse16 rx = (RxResponse16) response;
+								String receivedString = ByteUtils
+										.toString(rx.getData());
+								String transferData = XbeeEnum.ERROR_RESPONSE
+										.toString();
+								log.info("received Command is:" + receivedString);
+								if (null == receivedString) {
 
-						String receivedString = ByteUtils
-								.toString(rx.getData());
-						String transferData = XbeeEnum.ERROR_RESPONSE
-								.toString();
-						log.info("received Command is:" + receivedString);
-						if (null == receivedString) {
+									log.info("null data coming");
+									continue;
+								}
+								// if get the data is reading
+								if (receivedString.equals(XbeeEnum.READING.getValue())) {
+									log.info("start reading data :-----");
+									
+									
+									transferData = propertyReading.getDeviceId()
+									+ ","
+									+ propertyReading.getDeviceName()
+									+ ","
+									+ sensor.getTemperature()
+									+ ","
+									+ dateFormat.format(new Date())
+											.toString();
+									log.info("going to send temp data is:"
+											+ transferData);
+									testXbeelistener.sendXbeeData(xbee,
+											transferData);
+									/*if (null != testXbeelistener
+											.getTempSensorData(sensors)) {
 
-							log.info("null data coming");
-							continue;
-						}
-						// if get the data is reading
-						if (receivedString.equals(XbeeEnum.READING.getValue())) {
-							log.info("start reading data :-----");
-							if (null != testXbeelistener
-									.getTempSensorData(sensors)) {
+										transferData = propertyReading.getDeviceId()
+												+ ","
+												+ propertyReading.getDeviceName()
+												+ ","
+												+ testXbeelistener
+														.getTempSensorData(sensors)
+												+ ","
+												+ dateFormat.format(new Date())
+														.toString();
+										log.info("going to send temp data is:"
+												+ transferData);
+										testXbeelistener.sendXbeeData(xbee,
+												transferData);
+									}*/
+								} // if get the data is relay
+								else if (receivedString.equals(XbeeEnum.RELAY_ON
+										.getValue())) {
 
-								transferData = propertyReading.getDeviceId()
-										+ ","
-										+ propertyReading.getDeviceName()
-										+ ","
-										+ testXbeelistener
-												.getTempSensorData(sensors)
-										+ ","
-										+ dateFormat.format(new Date())
-												.toString();
-								log.info("going to send temp data is:"
-										+ transferData);
-								testXbeelistener.sendXbeeData(xbee,
-										transferData);
+									log.info("start relayon device :-----");
+									testXbeelistener.relayTheDevice(pin, true);
+								} else if (receivedString.equals(XbeeEnum.RELAY_OFF
+										.getValue())) {
+
+									log.info("start relayoff device :-----");
+									testXbeelistener.relayTheDevice(pin, false);
+								}
 							}
-						} // if get the data is relay
-						else if (receivedString.equals(XbeeEnum.RELAY_ON
-								.getValue())) {
-
-							log.info("start relayon device :-----");
-							testXbeelistener.relayTheDevice(pin, true);
-						} else if (receivedString.equals(XbeeEnum.RELAY_OFF
-								.getValue())) {
-
-							log.info("start relayoff device :-----");
-							testXbeelistener.relayTheDevice(pin, false);
 						}
+					} catch (ClassCastException e) {
+						// not an IO Sample
+						log.error(e.getMessage());
+					} catch (Exception e) {
+						// not an IO Sample
+						log.error(e.getMessage());
 					}
 				}
-			} catch (ClassCastException e) {
-				// not an IO Sample
-				log.error(e.getMessage());
-			} catch (Exception e) {
-				// not an IO Sample
-				log.error(e.getMessage());
 			}
-		}
+		}).start();
+		
 	}
 }
