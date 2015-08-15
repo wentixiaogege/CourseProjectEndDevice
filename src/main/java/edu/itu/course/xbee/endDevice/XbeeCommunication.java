@@ -35,79 +35,13 @@ import com.rapplogic.xbee.util.ByteUtils;
 
 import edu.itu.course.PropertyReading;
 import edu.itu.course.XbeeEnum;
-//public class XbeeCommunication implements Runnable {
-//
-//	private final static Logger log = Logger
-//			.getLogger(XbeeCommunication.class);
-//
-//	// using future
-//
-//	// using threads
-//	@Override
-//	public void run() {
-//
-//		String transferData = XbeeEnum.ERROR_RESPONSE.toString();
-//		XBee xbee = new XBee();
-//		PropertyReading propertyReading = new PropertyReading();
-//		try {
-//			
-//			    xbee.open(propertyReading.getXbeeDevice(),Integer.parseInt(propertyReading.getXbeeBaud()));
-//			    
-//				while (true) {
-//					
-//					try {
-//						
-//						String receivedString = receiveXbeeData(xbee);
-//						log.info("received Command is:"+receivedString);
-//						// if get the data is reading
-//						if (receivedString.equals(XbeeEnum.READING)) {
-//							if (null != getTempSensorData()) {
-//								transferData = getTempSensorData();
-//							}
-//						}
-//						// if get the data is relay
-//						if (receivedString.equals(XbeeEnum.RELAY_ON)) {
-//		
-//							relayTheDevice(true);
-//							transferData=XbeeEnum.RELAY_ON_DONE.toString();
-//						}
-//						if (receivedString.equals(XbeeEnum.RELAY_OFF)) {
-//		
-//							relayTheDevice(false);
-//							transferData=XbeeEnum.RELAY_OFF_DONE.toString();
-//						} else {
-//							log.debug("received unexpected packet "
-//									+ receivedString);
-//						}
-//						log.info("sending to server data is :"+transferData);
-//						//response to the server
-//						sendXbeeData(xbee,transferData);
-//						
-//						
-//						Thread.sleep(100);
-//						
-//					} catch (Exception e) {
-//						log.error(e);
-//					}
-//					
-//				}
-//			} catch (XBeeException e1) {
-//				// TODO Auto-generated catch block
-//				e1.printStackTrace();
-//				log.error(e1);
-//			   } finally {
-//				  if (xbee != null && xbee.isConnected()) {
-//					xbee.close();
-//				}
-//			  }
-//	}
 
-//using packet listener
+
 public class XbeeCommunication  {
 
 	private final static Logger log = Logger.getLogger(XbeeCommunication.class);
 
-	// using future
+	// using while true version
 
 	private XbeeCommunication() {
 
@@ -138,11 +72,6 @@ public class XbeeCommunication  {
 			xbee.open(propertyReading.getXbeeDevice(), Integer.parseInt(propertyReading.getXbeeBaud())); // xbee.open("/dev/ttyUSB0",9600);
 
 			log.info("xbee opened---------");
-
-//			sensors = Sensors.getSensors();
-
-//			log.info("found " + sensors.size() + "sensors");
-			
 
 			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			
