@@ -5,20 +5,15 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
-import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
 import javax.xml.bind.DatatypeConverter;
-
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-
 import se.hirt.w1.Sensor;
 import se.hirt.w1.Sensors;
-
+import se.hirt.w1.impl.DHTSensor;
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
 import com.pi4j.io.gpio.GpioPinDigitalOutput;
@@ -39,29 +34,26 @@ import com.rapplogic.xbee.util.ByteUtils;
 import edu.itu.course.PropertyReading;
 import edu.itu.course.XbeeEnum;
 
-
-/** 
-* @ClassName: XbeeListener 
-* @Description: TODO 
-* This Class is used in the end 
-* @author Jack Li E-mail:wentixiaogege@gmail.com
-* @date Aug 7, 2015 1:47:49 PM 
-*  
-*/ 
+/**
+ * @ClassName: XbeeListener
+ * @Description: TODO This Class is used in the end
+ * @author Jack Li E-mail:wentixiaogege@gmail.com
+ * @date Aug 7, 2015 1:47:49 PM
+ * 
+ */
 public class XbeeListener {
 
 	private final static Logger log = Logger.getLogger(XbeeListener.class);
 
-	
-	/** 
-	* @Title: receiveXbeeData 
-	* @Description: TODO(describe the functions of this method) 
-	* @param @param xbee
-	* @param @return
-	* @param @throws XBeeException    
-	* @return String    
-	* @throws 
-	*/ 
+	/**
+	 * @Title: receiveXbeeData
+	 * @Description: TODO(describe the functions of this method)
+	 * @param @param xbee
+	 * @param @return
+	 * @param @throws XBeeException
+	 * @return String
+	 * @throws
+	 */
 	public String receiveXbeeData(XBee xbee) throws XBeeException {
 
 		try {
@@ -94,19 +86,18 @@ public class XbeeListener {
 
 	}
 
-	
-	/** 
-	* @Title: sendXbeeData 
-	* @Description: TODO(describe the functions of this method) 
-	* @param @param xbee
-	* @param @param data    
-	* @return void    
-	* @throws 
-	*/ 
-	public void sendXbeeData(XBee xbee, String data) {
+	/**
+	 * @Title: sendXbeeData
+	 * @Description: TODO(describe the functions of this method)
+	 * @param @param xbee
+	 * @param @param data
+	 * @return void
+	 * @throws
+	 */
+	public synchronized void sendXbeeData(XBee xbee, DHTSensor sensor) {
 		// should add into the properties file
 		PropertyReading propertyReading = new PropertyReading();
-
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		int msb = DatatypeConverter.parseHexBinary(propertyReading
 				.getServerXbeeAddress())[0];
 		int lsb = DatatypeConverter.parseHexBinary(propertyReading
@@ -114,8 +105,13 @@ public class XbeeListener {
 
 		XBeeAddress16 address16 = new XBeeAddress16(msb, lsb);
 
-		final int[] payload = data.chars().toArray();
-		// final int[] payload = data.toCharArray();
+		// composing the data format here
+
+		String transferData = propertyReading.getDeviceId() + ","
+				+ propertyReading.getDeviceName() + ","
+				+ sensor.getTemperature() + ","
+				+ dateFormat.format(new Date()).toString();
+		final int[] payload = transferData.chars().toArray();
 
 		TxRequest16 request = new TxRequest16(address16, payload);
 
@@ -134,7 +130,7 @@ public class XbeeListener {
 			} else {
 				log.error("response is Error" + response.getStatus());
 			}
-			// xbee.clearResponseQueue();
+			xbee.clearResponseQueue();
 			// xbee
 		} catch (XBeeTimeoutException e) {
 			log.warn("request timed out");
@@ -144,121 +140,41 @@ public class XbeeListener {
 
 	}
 
-	
-	/** 
-	* @Title: getTempSensorData 
-	* @Description: TODO(describe the functions of this method) 
-	* @param @param sensors
-	* @param @return
-	* @param @throws IOException    
-	* @return String    
-	* @throws 
-	*/ 
-	public String getTempSensorData(Set<Sensor> sensors) throws IOException {
-
-		try {
-			for (Sensor sensor : sensors) {
-				// reading the temperature data
-				if (String.format("%s", sensor.getPhysicalQuantity()).equals(
-						"Temperature")) {
-					// the right one
-
-					log.debug("String.format(\"%3.2f\", sensor.getValue());"
-							+ String.format("%3.2f", sensor.getValue()));
-					return String.format("%3.2f", sensor.getValue());
-				}
-				log.debug(String.format("%s(%s):%3.2f%s",
-						sensor.getPhysicalQuantity(), sensor.getID(),
-						sensor.getValue(), sensor.getUnitString()));
-			}
-
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			throw new IOException(e);
-		}
-		return null;
-
-	}
-
-	
-	/** 
-	* @Title: getHumiditySensorData 
-	* @Description: TODO(describe the functions of this method) 
-	* @param @param sensors
-	* @param @return
-	* @param @throws IOException    
-	* @return String    
-	* @throws 
-	*/ 
-	public String getHumiditySensorData(Set<Sensor> sensors) throws IOException {
-
-		try {
-
-			for (Sensor sensor : sensors) {
-				// reading the humidity data
-				if (String.format("%s", sensor.getPhysicalQuantity()).equals(
-						"Humidity")) {
-					// the right one
-					log.debug("String.format(\"%3.2f\", sensor.getValue());"
-							+ String.format("%3.2f", sensor.getValue()));
-					return String.format("%3.2f", sensor.getValue());
-				}
-				log.info(String.format("%s(%s):%3.2f%s",
-						sensor.getPhysicalQuantity(), sensor.getID(),
-						sensor.getValue(), sensor.getUnitString()));
-			}
-
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			throw new IOException(e);
-		}
-
-		return null;
-
-	}
-
-	
-	/** 
-	* @Title: relayTheDevice 
-	* @Description: TODO(describe the functions of this method) 
-	* @param @param pin
-	* @param @param state    
-	* @return void    
-	* @throws 
-	*/ 
+	/**
+	 * @Title: relayTheDevice
+	 * @Description: TODO(describe the functions of this method)
+	 * @param @param pin
+	 * @param @param state
+	 * @return void
+	 * @throws
+	 */
 	public void relayTheDevice(GpioPinDigitalOutput pin, boolean state) {
 
 		pin.setState(state);
 
 	}
 
-	
-	/** 
-	* @Title: main 
-	* @Description: TODO(describe the functions of this method) 
-	* @param @param args
-	* @param @throws Exception    
-	* @return void    
-	* @throws 
-	*/ 
+	/**
+	 * @Title: main
+	 * @Description: TODO(describe the functions of this method)
+	 * @param @param args
+	 * @param @throws Exception
+	 * @return void
+	 * @throws
+	 */
 	public static void main(String[] args) throws Exception {
 
-		// using future
+		// Queue<XBeeResponse> queue = new
+		// ConcurrentLinkedQueue<XBeeResponse>();
+		BlockingQueue<XBeeResponse> queue = new ArrayBlockingQueue<XBeeResponse>(
+				30);
 
-		// using addPacketListener
-		// Properties props = null;
-//		Queue<XBeeResponse> queue = new ConcurrentLinkedQueue<XBeeResponse>();
-		BlockingQueue<XBeeResponse> queue = new ArrayBlockingQueue<XBeeResponse>(30);
-
-		XBeeResponse response;
 		XbeeListener testXbeelistener = new XbeeListener();
 		Properties props = new Properties();
 		XBee xbee = new XBee();
 		PropertyReading propertyReading = new PropertyReading();
 
-		Set<Sensor> sensors = Sensors.getSensors();
+		DHTSensor sensor = Sensors.getDHTSensor();
 
 		GpioController gpio = GpioFactory.getInstance();
 
@@ -266,8 +182,7 @@ public class XbeeListener {
 				.provisionDigitalOutputPin(RaspiPin.GPIO_12,
 						propertyReading.getDeviceName(), PinState.LOW);
 
-		props.load(XbeeCommunicationListener.class
-				.getResourceAsStream("/log4j.properties"));
+		props.load(XbeeListener.class.getResourceAsStream("/log4j.properties"));
 
 		PropertyConfigurator.configure(props);
 		log.info("xbee opening---------");
@@ -278,10 +193,8 @@ public class XbeeListener {
 
 		log.info("xbee opened---------");
 
-		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
 		// sensors = Sensors.getSensors();
-		log.info("found " + sensors.size() + "sensors");
+		// log.info("found " + sensors.size() + "sensors");
 
 		xbee.addPacketListener(new PacketListener() {
 
@@ -289,20 +202,29 @@ public class XbeeListener {
 			public void processResponse(XBeeResponse response) {
 
 				log.info("adding a packet here ----------\n" + queue.size());
-				queue.add(response);
+				// queue.add(response);
+				try {
+					queue.put(response);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 
 		});
 
+		XBeeResponse response;
 		while (true) {
 
 			// we got something!
 			try {
 				//
-				log.info("into while queue.poll here---------------\n");
-				if ((response = queue.poll()) != null) {
+				log.info("into while queue.poll here---------------\n"
+						+ queue.size());
+				if ((response = queue.take()) != null) {
 
-					
+					log.info("inside while queue.poll here---------------\n"
+							+ queue.size());
 					// TODO Auto-generated method stub
 					if (response.getApiId() == ApiId.RX_16_RESPONSE) {
 
@@ -311,8 +233,7 @@ public class XbeeListener {
 
 						String receivedString = ByteUtils
 								.toString(rx.getData());
-						String transferData = XbeeEnum.ERROR_RESPONSE
-								.toString();
+
 						log.info("received Command is:" + receivedString);
 						if (null == receivedString) {
 
@@ -321,24 +242,10 @@ public class XbeeListener {
 						}
 						// if get the data is reading
 						if (receivedString.equals(XbeeEnum.READING.getValue())) {
-							log.info("start reading data :-----");
-							if (null != testXbeelistener
-									.getTempSensorData(sensors)) {
+							log.info("start reading data :-----xbee size is "
+									+ xbee.getResponseQueueSize());
 
-								transferData = propertyReading.getDeviceId()
-										+ ","
-										+ propertyReading.getDeviceName()
-										+ ","
-										+ testXbeelistener
-												.getTempSensorData(sensors)
-										+ ","
-										+ dateFormat.format(new Date())
-												.toString();
-								log.info("going to send temp data is:"
-										+ transferData);
-								testXbeelistener.sendXbeeData(xbee,
-										transferData);
-							}
+							testXbeelistener.sendXbeeData(xbee, sensor);
 						} // if get the data is relay
 						else if (receivedString.equals(XbeeEnum.RELAY_ON
 								.getValue())) {
@@ -361,5 +268,13 @@ public class XbeeListener {
 				log.error(e.getMessage());
 			}
 		}
+		/*
+		 * new Thread(new Runnable() {
+		 * 
+		 * @Override public void run() { // TODO Auto-generated method stub
+		 * 
+		 * }).start();
+		 */
+
 	}
 }

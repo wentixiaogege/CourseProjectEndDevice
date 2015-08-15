@@ -14,6 +14,7 @@ import org.apache.log4j.PropertyConfigurator;
 
 import se.hirt.w1.Sensor;
 import se.hirt.w1.Sensors;
+import se.hirt.w1.impl.DHTSensor;
 
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
@@ -125,7 +126,7 @@ public class XbeeCommunication  {
 		final XBee xbee = new XBee();
 		PropertyReading propertyReading = new PropertyReading();
 
-		Set<Sensor> sensors;
+		DHTSensor sensor = Sensors.getDHTSensor();
 
 		final GpioController gpio = GpioFactory.getInstance();
 
@@ -138,9 +139,9 @@ public class XbeeCommunication  {
 
 			log.info("xbee opened---------");
 
-			sensors = Sensors.getSensors();
+//			sensors = Sensors.getSensors();
 
-			log.info("found " + sensors.size() + "sensors");
+//			log.info("found " + sensors.size() + "sensors");
 			
 
 			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -160,15 +161,15 @@ public class XbeeCommunication  {
 					// if get the data is reading
 					else if (receivedString.equals(XbeeEnum.READING.getValue())) {
 						log.info("start reading data :-----");
-						if (null != xbeeCommunication.getTempSensorData(sensors)) {
+//						if (null != xbeeCommunication.getTempSensorData(sensors)) {
 							
 							transferData = propertyReading.getDeviceId()+","
 									      +propertyReading.getDeviceName()+","
-									      +xbeeCommunication.getTempSensorData(sensors)+","
+									      +sensor.getTemperature() + ","
 									      +dateFormat.format(new Date()).toString();
 							log.info("going to send temp data is:" + transferData);
 							xbeeCommunication.sendXbeeData(xbee, transferData);
-						}
+//						}
 					} // if get the data is relay
 					else if (receivedString.equals(XbeeEnum.RELAY_ON.getValue())) {
 
@@ -181,12 +182,6 @@ public class XbeeCommunication  {
 						xbeeCommunication.relayTheDevice(pin, false);
 //						transferData = XbeeEnum.RELAY_OFF_DONE.getValue();
 					} 
-					/*else {
-						log.debug("received unexpected packet " + receivedString);
-					}*/
-//					log.info("sending to server data is :" + transferData); // response to the server xbeeCommunication.sendXbeeData(xbee,transferData);
-
-//					Thread.sleep(100);
 					
 				} catch (Exception e) {
 					log.error(e);
