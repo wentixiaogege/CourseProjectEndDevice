@@ -238,7 +238,7 @@ go to :yourprojectfolder/src/main/java/XbeeListener.java
   
   Let's say you have a DHT22 sensor want to use in this project, 
    go to CourseProject-folder/src/main/resourses/dhtsensors.properties :
-   (in my github folder https://github.com/wentixiaogege/courseProjectV1/blob/master/src/main/resources/xbee.properties)
+   (in my github folder https://github.com/wentixiaogege/CourseProject/blob/master/src/main/resources/dhtsensors.properties)
     ![alt tag](https://github.com/wentixiaogege/CourseProjectEndDevice/blob/master/readme_img/dhtsensor.png)
   
   modify the pin value and sensor type:(like below)
