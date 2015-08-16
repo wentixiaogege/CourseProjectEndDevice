@@ -242,15 +242,15 @@ go to :yourprojectfolder/src/main/java/XbeeListener.java
     ![alt tag](https://github.com/wentixiaogege/CourseProjectEndDevice/blob/master/readme_img/dhtsensor.png)
   
   modify the pin value and sensor type:(like below)
-	# Specify devices to use with the Adafruit_DHT driver in this file.
-	# If you have no such devices, just comment everything out.
-	#
-	# Type can be one of the following:
-	# 2302 (for AM2302)
-	# 11 (for DHT-11)
-	# 22 (for DHT-22)
-	sensor0.pin=22
-	sensor0.type=2302
+# Specify devices to use with the Adafruit_DHT driver in this file.
+# If you have no such devices, just comment everything out.
+#
+# Type can be one of the following:
+# 2302 (for AM2302)
+# 11 (for DHT-11)
+# 22 (for DHT-22)
+sensor0.pin=22
+sensor0.type=2302
 	
   then you can use it.
   
