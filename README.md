@@ -114,6 +114,7 @@ after you plugin the xbee device into your system use command below:
 
  
 Software:
+------------
 
 After the hardware part is done! You need to install some libraries and configure to make the system runing.
 
@@ -184,6 +185,78 @@ copy and paste this XXXX.jar package into your raspberry OS system anywhere you 
    sudo java -Djava.library.path=/usr/lib/jni/ -jar yourpackagename.jar 
 
 and you are set .!!!!!!!
+
+
+Usage of the System:
+---------------------
+
+next, I will tell in detail about how to change or modify functions in  the end device part.
+For how to modify or change function in the server part goto :
+	https://github.com/wentixiaogege/CourseProjectV1
+ below the usage of the system.
+ 
+1 change the end device part for your own usage
+
+   Till now ,I assume you already have set up the end device part of the system (including the hardware and software ). If not please check my another tutorial for how to set up the whole system .
+
+1.1 change the sensor's GPIO
+
+    I assume that you know that we are using DHT!! temperature sensor to get data based on previous tutorial , and on your own raspberry pi you can use below command :
+	  sudo Adafruit  11 4 
+  to get the temperature and humidity data like this:
+![alt tag](https://github.com/wentixiaogege/CourseProjectEndDevice/blob/master/readme_img/adafruit.png) 
+
+ if you want to change the GPIO number of the device ,below is mine:
+ 
+![alt tag](https://github.com/wentixiaogege/CourseProjectEndDevice/blob/master/readme_img/temp_connection.png)   
+
+from this picture ,you can change to other pins, if you can see the bold numbers around the edge,which is  the pi4j pin numbers :
+      for now I am using    RaspiPin.GPIO_12 this one.
+![alt tag](https://github.com/wentixiaogege/CourseProjectEndDevice/blob/master/readme_img/pi4j_gpio.png)
+
+I got  above picture from here:
+
+http://static1.1.sqspcdn.com/static/f/1127462/25655475/1415663597223/rpi-java-8-savage-devoxx.pdf?token=%2BGcc6%2FnUUkzdrjwJpKcdsFvv%2FtU%3D  
+
+  then to change the pin number:
+  go to :/src/main/resourese/xbee.properties  to change the relayPinNum 
+  ![alt tag](https://github.com/wentixiaogege/CourseProjectEndDevice/blob/master/readme_img/property.png)
+  
+  
+1.2 getting the humidity data other than temperature data
+
+ for now we are getting temperature data here,if you want to change reading temperature to humidity data  
+go to :yourprojectfolder/src/main/java/XbeeListener.java 
+  find sendXbeeData function
+  ![alt tag](https://github.com/wentixiaogege/CourseProjectEndDevice/blob/master/readme_img/sendXbeeData.png)
+  
+  just change the sensor.getTemperature() into sensor.getHumidity() will be okay!
+
+1.3 using other sensor or device
+
+  if you are going to use other sensors other than this DHT11. Happily is that you can still use DHT22 ,DallasSensors with this library.
+  
+  Let's say you have a DHT22 sensor want to use in this project, 
+   go to CourseProject-folder/src/main/resourses/dhtsensors.properties :
+   (in my github folder https://github.com/wentixiaogege/CourseProject/blob/master/src/main/resources/dhtsensors.properties)
+    ![alt tag](https://github.com/wentixiaogege/CourseProjectEndDevice/blob/master/readme_img/dhtsensor.png)
+  
+  modify the pin value and sensor type:(like below)
+	# Specify devices to use with the Adafruit_DHT driver in this file.
+	# If you have no such devices, just comment everything out.
+	#
+	# Type can be one of the following:
+	# 2302 (for AM2302)
+	# 11 (for DHT-11)
+	# 22 (for DHT-22)
+	sensor0.pin=22
+	sensor0.type=2302
+	
+  then you can use it.
+  
+  
+   
+ 
 
 
 
