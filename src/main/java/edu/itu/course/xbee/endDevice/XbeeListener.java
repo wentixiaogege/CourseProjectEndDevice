@@ -126,9 +126,9 @@ public class XbeeListener {
 			log.debug("received response " + response);
 
 			if (response.isSuccess()) {
-				log.info("response is Success" + response.getStatus());
+				log.info("response is " + response.getStatus());
 			} else {
-				log.error("response is Error" + response.getStatus());
+				log.error("response is " + response.getStatus());
 			}
 			xbee.clearResponseQueue();
 			// xbee
