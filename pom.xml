@@ -41,7 +41,7 @@
 		    <configuration>
 		        <archive>
 		            <manifest>
-		                <mainClass>edu.itu.course.xbee.endDevice.XbeeCommunication</mainClass>
+		                <mainClass>edu.itu.course.xbee.endDevice.XbeeListener</mainClass>
 		            </manifest>
 		        </archive>
 		    </configuration>
