@@ -193,7 +193,7 @@ Usage of the System:
 next, I will tell in detail about how to change or modify functions in  the end device part.
 For how to modify or change function in the server part goto :
 	https://github.com/wentixiaogege/CourseProjectV1
- below the usage of the system.
+ 
  
 1 change the end device part for your own usage
 
