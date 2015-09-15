@@ -109,7 +109,7 @@ public class XbeeListener {
 
 		String transferData = propertyReading.getDeviceId() + ","
 				+ propertyReading.getDeviceName() + ","
-				+ sensor.getTemperature() + ","
+				+ "23.23,"//sensor.getTemperature() + "
 				+ dateFormat.format(new Date()).toString();
 		final int[] payload = transferData.chars().toArray();
 
@@ -248,7 +248,7 @@ public class XbeeListener {
 							testXbeelistener.sendXbeeData(xbee, sensor);
 						} // if get the data is relay
 						else if (receivedString.equals(XbeeEnum.RELAY_ON
-								.getValue())) {
+								.getValue()+propertyReading.getDeviceId())) {
 
 							log.info("start relayon device :-----");
 							testXbeelistener.relayTheDevice(pin, true);
