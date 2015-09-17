@@ -1,4 +1,4 @@
-package edu.itu.course.rest.endDevice;
+package edu.itu.course.sse.endDevice;
 
 import java.sql.Timestamp;
 import java.text.DateFormat;

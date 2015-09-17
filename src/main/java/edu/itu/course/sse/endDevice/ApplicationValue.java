@@ -1,4 +1,4 @@
-package edu.itu.course.rest.endDevice;
+package edu.itu.course.sse.endDevice;
 
 import java.util.Hashtable;
 

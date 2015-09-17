@@ -29,18 +29,14 @@ import edu.itu.course.PropertyReading;
 public class RESTfulEndDevice {
 
 	public static void main(String[] args) {
-		// start sse
-		RESTfulEndDevice restfulEndDevice = new RESTfulEndDevice();
-		
 		try {
 		// open websocket
-        final WebsocketClientEndpoint clientEndPoint = new WebsocketClientEndpoint(new URI("ws://localhost:8888/frequency/"));
+        final WebsocketClientEndpoint clientEndPoint = new WebsocketClientEndpoint(new URI("ws://localhost:8888/subscribe/"));
         final Timer timer = new Timer();
 		TimerTaskTest taskTest = new RESTfulEndDevice().new TimerTaskTest();
 		
         final ReschedulableTimer rescheduleTimer = new ReschedulableTimer();
         rescheduleTimer.schedule(10000);
-        
         clientEndPoint.addMessageHandler(new WebsocketClientEndpoint.MessageHandler() {
             public void handleMessage(String message) {
             	System.out.println(message);
@@ -63,23 +59,13 @@ public class RESTfulEndDevice {
 					System.out.println("changed===========================");
 					
 					rescheduleTimer.reschedule(frequency);
-	            	
 				}
             }
         });
 
-        // send message to websocket
-        clientEndPoint.sendMessage("{'event':'addChannel','channel':'ok_btccny_ticker'}");
-
-
-		//timer.schedule(taskTest,new Date(), ApplicationValue.getLicenKeyValue());
-        while (clientEndPoint.userSession.isOpen()) {
-//			clientEndPoint.onMessage(message);
-//        	
-		}
-        // wait 5 seconds for messages from websocket
-//        Thread.sleep(5000);
-
+        while(WebsocketClientEndpoint.client.isRunning()){
+   		 
+   	 }
     } catch (URISyntaxException ex) {
         System.err.println("URISyntaxException exception: " + ex.getMessage());
     }
