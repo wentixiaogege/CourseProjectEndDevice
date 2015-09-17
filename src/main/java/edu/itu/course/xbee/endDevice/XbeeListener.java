@@ -1,4 +1,4 @@
-package edu.itu.course.xbee.endDevice;
+/*package edu.itu.course.xbee.endDevice;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -34,18 +34,18 @@ import com.rapplogic.xbee.util.ByteUtils;
 import edu.itu.course.PropertyReading;
 import edu.itu.course.XbeeEnum;
 
-/**
+*//**
  * @ClassName: XbeeListener
  * @Description: TODO This Class is used in the end
  * @author Jack Li E-mail:wentixiaogege@gmail.com
  * @date Aug 7, 2015 1:47:49 PM
  * 
- */
+ *//*
 public class XbeeListener {
 
 	private final static Logger log = Logger.getLogger(XbeeListener.class);
 
-	/**
+	*//**
 	 * @Title: receiveXbeeData
 	 * @Description: TODO(describe the functions of this method)
 	 * @param @param xbee
@@ -53,7 +53,7 @@ public class XbeeListener {
 	 * @param @throws XBeeException
 	 * @return String
 	 * @throws
-	 */
+	 *//*
 	public String receiveXbeeData(XBee xbee) throws XBeeException {
 
 		try {
@@ -86,14 +86,14 @@ public class XbeeListener {
 
 	}
 
-	/**
+	*//**
 	 * @Title: sendXbeeData
 	 * @Description: TODO(describe the functions of this method)
 	 * @param @param xbee
 	 * @param @param data
 	 * @return void
 	 * @throws
-	 */
+	 *//*
 	public synchronized void sendXbeeData(XBee xbee, DHTSensor sensor) {
 		// should add into the properties file
 		PropertyReading propertyReading = new PropertyReading();
@@ -140,28 +140,28 @@ public class XbeeListener {
 
 	}
 
-	/**
+	*//**
 	 * @Title: relayTheDevice
 	 * @Description: TODO(describe the functions of this method)
 	 * @param @param pin
 	 * @param @param state
 	 * @return void
 	 * @throws
-	 */
+	 *//*
 	public void relayTheDevice(GpioPinDigitalOutput pin, boolean state) {
 
 		pin.setState(state);
 
 	}
 
-	/**
+	*//**
 	 * @Title: main
 	 * @Description: TODO(describe the functions of this method)
 	 * @param @param args
 	 * @param @throws Exception
 	 * @return void
 	 * @throws
-	 */
+	 *//*
 	public static void main(String[] args) throws Exception {
 
 		// Queue<XBeeResponse> queue = new
@@ -268,13 +268,14 @@ public class XbeeListener {
 				log.error(e.getMessage());
 			}
 		}
-		/*
+		
 		 * new Thread(new Runnable() {
 		 * 
 		 * @Override public void run() { // TODO Auto-generated method stub
 		 * 
 		 * }).start();
-		 */
+		 
 
 	}
 }
+*/

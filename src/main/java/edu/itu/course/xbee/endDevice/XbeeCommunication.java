@@ -1,4 +1,4 @@
-package edu.itu.course.xbee.endDevice;
+/*package edu.itu.course.xbee.endDevice;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -46,11 +46,11 @@ public class XbeeCommunication  {
 	private XbeeCommunication() {
 
 	}
-	/**
+	*//**
 	 * Reopen.
 	 *
 	 * @return true, if successful
-	 */
+	 *//*
 	public boolean reopen(XBee xbee,PropertyReading propertyReading){
 		try {
 			if (xbee != null && xbee.isConnected()) {
@@ -218,3 +218,4 @@ public class XbeeCommunication  {
 		pin.setState(state);
 	}
 }
+*/
