@@ -247,7 +247,8 @@ go to :yourprojectfolder/src/main/java/XbeeListener.java
 	
   then you can use it.
   
-  
+  how to use the websocket to control the enddevice 
+  curl -i -X POST -H "Content-Type: application/json" -d '{"relayOn":0,"relayOff":0,"frequency":2000}' http://localhost:8888/service/notification/frequency/broadcast
    
  
 
